@@ -51,13 +51,15 @@ class ValueIterationAgent(ValueEstimationAgent):
             for state in mdp.getStates():
                 if mdp.isTerminal(state): # If terminal state the reward is its own reward
                     #TODO Find a way to get reward of terminal state
-                    nextValues[(state, 'pass')] = mdp.getReward(state, 'pass', state) # I got 'pass' from mdp.py but its not right
+                    #nextValues[(state, 'pass')] = mdp.getReward(state, 'pass', state) # I got 'pass' from mdp.py but its not right
                     continue
                 for action in mdp.getPossibleActions(state): #Calculate utility of all next states
                     reward =  self.values[(state, action)] #Set current reward to previous value
                     nextVal = 0
                     for tup in mdp.getTransitionStatesAndProbs(state, action): # Adds rewards of all resulting states times the prob to get to that state
                         nextVal += discount * tup[1] * mdp.getReward(state, action, tup[0])
+                        if mdp.isTerminal(tup[0]):
+                            nextValues[(state, None)] = mdp.getReward(state, action, tup[0])
                     nextValues[(state, action)] = reward + nextVal # Assigns the (s, a) tuple as a key, with its q-value as the value
             self.values = nextValues # Assigns current value dict to prev
 
