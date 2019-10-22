@@ -43,24 +43,27 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.iterations = iterations
         self.values = util.Counter() # A Counter is a dict with default 0
 
-        for state in mdp.getStates(): # Initialize state value pairs to zero
-            values[state] = 0
-
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
         for i in range(iterations):
             nextValues = util.Counter() # Empty dictionary to be populate
             for state in mdp.getStates():
-                maxNextVal = 0 #Get the max Util of all nextStates
+                if mdp.isTerminal(state): # If terminal state the reward is its own reward
+                    nextValues[(state, 'pass')] = mdp.getReward(state, 'pass', state)
+                    continue
                 for action in mdp.getPossibleActions(state): #Calculate utility of all possible next state
-                    #Assign reward differently if terminal state
-                    nextStateProb = mdp.getTransitionStatesAndProbs(state, action)[0]
+                    nextStateProb = 0
+                    for tup in mdp.getTransitionStatesAndProbs(state, action):
+                        if tup[0] == state:
+                            nextStateProb = tup
                     reward =  mdp.getReward(state, action, nextStateProb[0]) #Get reward of next state R(s)
-                    nextVal = discount * nextStateProb[1] * values[nextStateProb[0]]
-                    if nextVal > maxNextVal:
-                        maxNextVal = nextVal
-                nextValues[state] = maxNextVal #Populates nextValues
-                
+                    #Problem: I'm adding the reward of next state with the utility of next state, where I'm supposed 
+                    # to be adding the reward of current state with the utility of the next
+                    nextVal = reward + discount * nextStateProb[1] * self.values[(nextStateProb[0], action)] #Bellman equation
+                    nextValues[(nextStateProb[0], action)] = nextVal # Assigns the (s, a) tuple as a key, with its q-value as the value
+            self.values = nextValues # Assigns current value dict to prev
+
+
 
 
     def getValue(self, state):
@@ -76,7 +79,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.values[(state, action)]
 
     def computeActionFromValues(self, state):
         """
@@ -88,7 +91,14 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        a = util.Counter()
+        for action in self.mdp.getPossibleActions(state):
+            a[action] = self.values[(state, action)]
+        return a.argMax
+            
+        
+        
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
