@@ -17,6 +17,7 @@ from learningAgents import ReinforcementAgent
 from featureExtractors import *
 
 import random,util,math
+#Example edit
 
 class QLearningAgent(ReinforcementAgent):
     """
@@ -37,6 +38,8 @@ class QLearningAgent(ReinforcementAgent):
       Functions you should use
         - self.getLegalActions(state)
           which returns legal actions for a state
+
+      
     """
     def __init__(self, **args):
         "You can initialize Q-values here..."
