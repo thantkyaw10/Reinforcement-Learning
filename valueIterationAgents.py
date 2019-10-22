@@ -46,7 +46,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
 
-        for i in range(iterations+1):
+        for i in range(0, iterations):
             nextValues = util.Counter() # Empty dictionary to be populate
             for state in mdp.getStates():
                 if mdp.isTerminal(state): # If terminal state the reward is its own reward
@@ -61,7 +61,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                         if mdp.isTerminal(tup[0]):
                             nextValues[(state, None)] = mdp.getReward(state, action, tup[0])
                     nextValues[(state, action)] = reward + nextVal # Assigns the (s, a) tuple as a key, with its q-value as the value
-            self.values = nextValues # Assigns current value dict to prev
+            self.values = nextValues.copy() # Assigns current value dict to prev
 
 
     def getValue(self, state):
@@ -78,8 +78,8 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         q=0 #weighted average value
-        for tup in mdp.getTransitionStatesAndProbs(state, action): #tup is (state, action)
-            q += tup[1] * mdp.getReward(state,action,tup[0]) + discount * values[tup[0]]
+        for tup in self.mdp.getTransitionStatesAndProbs(state, action): #tup is (state, action)
+            q += (tup[1] * self.mdp.getReward(state,action,tup[0])) + (self.discount * self.values[tup[0]])
         return q
 
     def computeActionFromValues(self, state):
@@ -96,7 +96,8 @@ class ValueIterationAgent(ValueEstimationAgent):
             return None
         a = util.Counter()
         for action in self.mdp.getPossibleActions(state):
-            a[action] = self.values[(state, action)]
+            #a[action] = self.values[(state, action)]
+            a[action] = self.computeQValueFromValues(state,action)
         return a.argMax
             
         
