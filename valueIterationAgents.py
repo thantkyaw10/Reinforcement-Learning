@@ -49,18 +49,15 @@ class ValueIterationAgent(ValueEstimationAgent):
             nextValues = util.Counter() # Empty dictionary to be populate
             for state in mdp.getStates():
                 if mdp.isTerminal(state): # If terminal state the reward is its own reward
+                    #TODO Find a way to get reward of terminal state
                     nextValues[(state, 'pass')] = mdp.getReward(state, 'pass', state)
                     continue
                 for action in mdp.getPossibleActions(state): #Calculate utility of all possible next state
-                    nextStateProb = 0
-                    for tup in mdp.getTransitionStatesAndProbs(state, action):
-                        if tup[0] == state:
-                            nextStateProb = tup
-                    reward =  mdp.getReward(state, action, nextStateProb[0]) #Get reward of next state R(s)
-                    #Problem: I'm adding the reward of next state with the utility of next state, where I'm supposed 
-                    # to be adding the reward of current state with the utility of the next
-                    nextVal = reward + discount * nextStateProb[1] * self.values[(nextStateProb[0], action)] #Bellman equation
-                    nextValues[(nextStateProb[0], action)] = nextVal # Assigns the (s, a) tuple as a key, with its q-value as the value
+                    reward =  self.values[(state, action)] #Set current reward to previous value
+                    nextVal = 0
+                    for tup in mdp.getTransitionStatesAndProbs(state, action): # Adds rewards of all resulting states times the prob to get to that state
+                        nextVal += discount * tup[1] * mdp.getReward(state, action, tup[0])
+                    nextValues[(state, action)] = reward + nextVal # Assigns the (s, a) tuple as a key, with its q-value as the value
             self.values = nextValues # Assigns current value dict to prev
 
 
@@ -91,6 +88,8 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
+        if self.mdp.isTerminal(state):
+            return None
         a = util.Counter()
         for action in self.mdp.getPossibleActions(state):
             a[action] = self.values[(state, action)]
