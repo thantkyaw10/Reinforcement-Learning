@@ -60,7 +60,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                     for action in mdp.getPossibleActions(state): #Calculate utility of all next states
                         nextVal = 0
                         for tup in mdp.getTransitionStatesAndProbs(state, action): # Adds rewards of all resulting states times the prob to get to that state
-                            nextVal += tup[1] * (mdp.getReward(state, action, tup[0]) + self.discount * self.values[tup[0]])
+                            nextVal += (tup[1] * mdp.getReward(state, action, tup[0])) + (tup[1] * self.discount * self.values[tup[0]])
                         vals.append(nextVal)
                     self.values[state] = max(vals)
                    
@@ -79,7 +79,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         "*** YOUR CODE HERE ***"
         q=0 #weighted average value
         for tup in self.mdp.getTransitionStatesAndProbs(state, action): #tup is (state, action)
-            q += tup[1] * (self.mdp.getReward(state, action, tup[0]) + self.discount * self.values[tup[0]])
+            q += (tup[1] * mdp.getReward(state, action, tup[0])) + (tup[1] * self.discount * self.values[tup[0]])
         return q
 
     def computeActionFromValues(self, state):
@@ -100,7 +100,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             for action in self.mdp.getPossibleActions(state):
                 nextVal = 0
                 for tup in self.mdp.getTransitionStatesAndProbs(state, action):
-                    nextVal += tup[1] * (self.mdp.getReward(state, action, tup[0]) + self.values[tup[0]])
+                    nextVal += (tup[1] * mdp.getReward(state, action, tup[0])) + (tup[1] * self.discount * self.values[tup[0]])
                 if nextVal > compare:
                     act = action
                     compare = nextVal
