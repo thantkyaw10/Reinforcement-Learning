@@ -59,8 +59,7 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        
-        util.raiseNotDefined()
+        return self.values[(state,action)]
 
 
     def computeValueFromQValues(self, state):
@@ -71,7 +70,12 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        val = -999
+        for action in self.getLegalActions(state):
+          if self.getQValue(state, action) > val:
+            val = self.getQValue(state, action)
+        return max(0, val)
+
 
     def computeActionFromQValues(self, state):
         """
@@ -80,17 +84,18 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-        toAct = [None]
+        toAct = []
         upper = -999
         for action in self.getLegalActions(state):
           if self.getQValue(state, action) > upper:
             upper = self.getQValue(state, action)
-            toAct.clear()
             toAct.append(action)
           elif self.getQValue(state, action) == upper:
             toAct.append(action)
-        return random.choice(toAct)
+        if len(toAct) != 0:
+          return random.choice(toAct)
+        else:
+          return None
 
     def getAction(self, state):
         """
@@ -123,13 +128,13 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        if self.freq[nextState] == 0: # If we haven't seen next state before
-          self.values[nextState] = reward # Set its value to its reward
-          self.freq[nextState] += 1 # Increment freq
+        if self.freq[(state,action)] == 0: # If we haven't seen next state before
+          self.values[(state,action)] = reward # Set its value to its reward
+          self.freq[(state,action)] += 1 # Increment freq
         else:
-          self.freq[state] += 1
-          self.values[state] = self.values[state] + self.alpha * self.freq[state] * (reward + self.discount * self.values[nextState] - self.values[state])
-        util.raiseNotDefined()
+          self.freq[(state,action)] += 1
+          self.values[(state,action)] = self.values[state] + self.alpha * self.freq[state] * (reward + self.discount * self.values[nextState] - self.values[state])
+        
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
