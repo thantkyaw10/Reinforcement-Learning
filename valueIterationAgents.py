@@ -46,9 +46,10 @@ class ValueIterationAgent(ValueEstimationAgent):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
 
-        for i in range(0, iterations):
+        for i in range(iterations):
             nextValues = util.Counter() # Empty dictionary to be populate
             for state in mdp.getStates():
+<<<<<<< HEAD
                 #if mdp.isTerminal(state): # If terminal state the reward is its own reward
                 #    #TODO Find a way to get reward of terminal state
                 #    nextValues[(state, 'pass')] = mdp.getReward(state, 'pass', state) # I got 'pass' from mdp.py but its not right
@@ -70,6 +71,21 @@ class ValueIterationAgent(ValueEstimationAgent):
                     #        nextValues[(state, None)] = mdp.getReward(state, action, tup[0])
                     #nextValues[(state, action)] = reward + nextVal # Assigns the (s, a) tuple as a key, with its q-value as the value
             self.values = nextValues # Assigns current value dict to prev
+=======
+                if mdp.isTerminal(state): # If terminal state the reward is its own reward
+                    nextValues[state] = mdp.getReward(state, 'exit', state) # I got 'pass' from mdp.py but its not right
+                    continue
+                maxVal = 0
+                for action in mdp.getPossibleActions(state): #Calculate utility of all next states
+                    reward =  self.values[state] #Set current reward to previous value
+                    nextVal = 0
+                    for tup in mdp.getTransitionStatesAndProbs(state, action): # Adds rewards of all resulting states times the prob to get to that state
+                        nextVal += discount * tup[1] * mdp.getReward(state, action, tup[0])
+                    if reward + nextVal > maxVal: # Assigns state the highest value of all its actions
+                        nextValues[state] = reward + nextVal
+                        maxVal = reward + nextVal
+            self.values = nextValues.copy() # Assigns current value dict to prev
+>>>>>>> ba6676589b57627643ed17a2a6482081451f3e7d
 
 
     def getValue(self, state):
@@ -86,9 +102,13 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         q=0 #weighted average value
+        reward = self.values[state]
         for tup in self.mdp.getTransitionStatesAndProbs(state, action): #tup is (state, action)
-            q += (tup[1] * self.mdp.getReward(state,action,tup[0])) + (self.discount * self.values[tup[0]])
-        return q
+            if self.mdp.isTerminal(tup[0]): # If next state is terminal just return its reward
+                q += self.mdp.getReward(state, action, tup[0])
+                continue
+            q += self.discount * tup[1] * self.mdp.getReward(state, action, tup[0])
+        return q + reward
 
     def computeActionFromValues(self, state):
         """
