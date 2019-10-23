@@ -73,7 +73,7 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        a = []
+        a = [0]
         for action in self.getLegalActions(state):
           a.append(self.values[(state, action)])
         return max(a)
@@ -134,10 +134,13 @@ class QLearningAgent(ReinforcementAgent):
         "*** YOUR CODE HERE ***"
         if self.prevState != None:
           self.freq[(state, action)] += 1
-          self.values[(state, action)] = self.values[(state, action)] + self.alpha * (self.prevReward + self.discount * self.values[(state, computeActionFromQValues(state))] - self.values[(state, action)])
+          self.values[(state,action)] = (1-self.alpha)*self.getQValue(state,action) + self.alpha*(reward + self.discount * self.getValue(nextState))
+          #self.values[(state, action)] = self.values[(state, action)] + self.alpha * (self.prevReward + self.discount * self.values[(state, self.computeActionFromQValues(state))] - self.values[(state, action)])
         self.prevState = state
         self.prevReward = reward
         self.prevAction = action
+        if self.prevAction == 'exit':
+          self.values[(state,action)] = reward
 
 
     def getPolicy(self, state):
