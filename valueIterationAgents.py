@@ -100,7 +100,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             for action in self.mdp.getPossibleActions(state):
                 nextVal = 0
                 for tup in self.mdp.getTransitionStatesAndProbs(state, action):
-                    nextVal += (tup[1] * mdp.getReward(state, action, tup[0])) + (tup[1] * self.discount * self.values[tup[0]])
+                    nextVal += (tup[1] * self.mdp.getReward(state, action, tup[0])) + (tup[1] * self.discount * self.values[tup[0]])
                 if nextVal > compare:
                     act = action
                     compare = nextVal
