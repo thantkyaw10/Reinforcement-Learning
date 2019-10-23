@@ -46,6 +46,11 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
+        self.values = util.Counter()
+        self.freq = util.Counter()
+        # //TODO Set all state's Q-values to 0 with a Counter
+        # Do we keep state, action pairs or just states?
+        # //TODO Initialize transition probability Counter
 
     def getQValue(self, state, action):
         """
@@ -54,6 +59,7 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
+        
         util.raiseNotDefined()
 
 
@@ -105,6 +111,12 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
+        if self.freq[nextState] == 0: # If we haven't seen next state before
+          self.values[nextState] = reward # Set its value to its reward
+          self.freq[nextState] += 1 # Increment freq
+        else:
+          self.freq[state] += 1
+          self.values[state] = self.values[state] + self.alpha * self.freq[state] * (reward + self.discount * self.values[nextState] - self.values[state])
         util.raiseNotDefined()
 
     def getPolicy(self, state):
