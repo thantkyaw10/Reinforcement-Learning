@@ -48,6 +48,9 @@ class QLearningAgent(ReinforcementAgent):
         "*** YOUR CODE HERE ***"
         self.values = util.Counter()
         self.freq = util.Counter()
+        self.prevAction = None
+        self.prevState = None
+        self.prevReward = None
         # //TODO Set all state's Q-values to 0 with a Counter
         # Do we keep state, action pairs or just states?
         # //TODO Initialize transition probability Counter
@@ -129,13 +132,13 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        if self.freq[(state,action)] == 0: # If we haven't seen next state before
-          self.values[(state,action)] = reward # Set its value to its reward
-          self.freq[(state,action)] += 1 # Increment freq
-        else:
-          self.freq[(state,action)] += 1
-          self.values[(state,action)] = self.values[state] + self.alpha * self.freq[state] * (reward + self.discount * self.values[nextState] - self.values[state])
-        
+        if self.prevState != None:
+          self.freq[(state, action)] += 1
+          self.values[(state, action)] = self.values[(state, action)] + self.alpha * (self.prevReward + self.discount * self.values[(state, computeActionFromQValues(state))] - self.values[(state, action)])
+        self.prevState = state
+        self.prevReward = reward
+        self.prevAction = action
+
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
