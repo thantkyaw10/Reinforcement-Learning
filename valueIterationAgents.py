@@ -49,18 +49,19 @@ class ValueIterationAgent(ValueEstimationAgent):
         for i in range(iterations):
             nextValues = util.Counter() # Empty dictionary to be populate
             for state in mdp.getStates():
-                if mdp.isTerminal(state): # If terminal state the reward is its own reward
-                    nextValues[state] = mdp.getReward(state, 'exit', state) # I got 'pass' from mdp.py but its not right
-                    continue
                 maxVal = 0
                 for action in mdp.getPossibleActions(state): #Calculate utility of all next states
                     reward =  self.values[state] #Set current reward to previous value
                     nextVal = 0
                     for tup in mdp.getTransitionStatesAndProbs(state, action): # Adds rewards of all resulting states times the prob to get to that state
+                        if mdp.isTerminal(tup[0]): # If next state is terminal the reward is just its own reward
+                            nextVal = mdp.getReward(state, action, tup[0])
+                            continue
                         nextVal += discount * tup[1] * mdp.getReward(state, action, tup[0])
-                    if reward + nextVal > maxVal: # Assigns state the highest value of all its actions
-                        nextValues[state] = reward + nextVal
+                    if reward + nextVal > maxVal: # Keeps track of highest value
                         maxVal = reward + nextVal
+                nextValues[state] = maxVal # Assigns state to its maxVal
+                    
             self.values = nextValues.copy() # Assigns current value dict to prev
 
 
