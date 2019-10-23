@@ -46,25 +46,24 @@ class ValueIterationAgent(ValueEstimationAgent):
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
 
+        nextValues = util.Counter() # Empty dictionary to be populate
+
         for i in range(iterations):
-            nextValues = util.Counter() # Empty dictionary to be populate
+            nextValues = self.values.copy()
+            #nextValues = util.Counter() # Empty dictionary to be populate
             for state in mdp.getStates():
-                maxVal = 0
-                for action in mdp.getPossibleActions(state): #Calculate utility of all next states
-                    reward =  self.values[state] #Set current reward to previous value
-                    nextVal = 0
-                    for tup in mdp.getTransitionStatesAndProbs(state, action): # Adds rewards of all resulting states times the prob to get to that state
-                        if mdp.isTerminal(tup[0]): # If next state is terminal the reward is just its own reward
-                            nextVal = mdp.getReward(state, action, tup[0])
-                            continue
-                        nextVal += discount * tup[1] * mdp.getReward(state, action, tup[0])
-                    if reward + nextVal > maxVal: # Keeps track of highest value
-                        maxVal = reward + nextVal
-                nextValues[state] = maxVal # Assigns state to its maxVal
-                    
-            self.values = nextValues.copy() # Assigns current value dict to prev
-
-
+                vals = []
+                if mdp.isTerminal(state): # If terminal state the reward is its own reward
+                    self.values[state] = 0
+                    nextValues[state] = mdp.getReward(state, 'exit', state) # I got 'pass' from mdp.py but its not right
+                else:
+                    for action in mdp.getPossibleActions(state): #Calculate utility of all next states
+                        nextVal = 0
+                        for tup in mdp.getTransitionStatesAndProbs(state, action): # Adds rewards of all resulting states times the prob to get to that state
+                            nextVal += tup[1] * (mdp.getReward(state, action, tup[0]) + self.discount * self.values[tup[0]])
+                        vals.append(nextVal)
+                    self.values[state] = max(vals)
+                   
     def getValue(self, state):
         """
           Return the value of the state (computed in __init__).
@@ -79,13 +78,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         q=0 #weighted average value
-        reward = self.values[state]
         for tup in self.mdp.getTransitionStatesAndProbs(state, action): #tup is (state, action)
-            if self.mdp.isTerminal(tup[0]): # If next state is terminal just return its reward
-                q += self.mdp.getReward(state, action, tup[0])
-                continue
-            q += self.discount * tup[1] * self.mdp.getReward(state, action, tup[0])
-        return q + reward
+            q += tup[1] * (self.mdp.getReward(state, action, tup[0]) + self.discount * self.values[tup[0]])
+        return q
 
     def computeActionFromValues(self, state):
         """
@@ -99,15 +94,17 @@ class ValueIterationAgent(ValueEstimationAgent):
         "*** YOUR CODE HERE ***"
         if self.mdp.isTerminal(state):
             return None
-        a = util.Counter()
-        for action in self.mdp.getPossibleActions(state):
-            #a[action] = self.values[(state, action)]
-            a[action] = self.computeQValueFromValues(state,action)
-        return a.argMax
-            
-        
-        
-
+        else:
+            compare = -999
+            act = 0
+            for action in self.mdp.getPossibleActions(state):
+                nextVal = 0
+                for tup in self.mdp.getTransitionStatesAndProbs(state, action):
+                    nextVal += tup[1] * (self.mdp.getReward(state, action, tup[0]) + self.values[tup[0]])
+                if nextVal > compare:
+                    act = action
+                    compare = nextVal
+            return act
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
