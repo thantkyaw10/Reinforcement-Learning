@@ -48,9 +48,6 @@ class QLearningAgent(ReinforcementAgent):
         "*** YOUR CODE HERE ***"
         self.values = util.Counter()
         self.freq = util.Counter()
-        self.prevAction = None
-        self.prevState = None
-        self.prevReward = None
         # //TODO Set all state's Q-values to 0 with a Counter
         # Do we keep state, action pairs or just states?
         # //TODO Initialize transition probability Counter
@@ -73,12 +70,22 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
+<<<<<<< HEAD
         if len(self.getLegalActions(state)) == 0: #terminal state
+=======
+        if len(self.getLegalActions(state)) == 0:
+>>>>>>> c4157bbd3a7c7991f17a07a4ecdedf52537677a3
           return 0
         a = []
         for action in self.getLegalActions(state):
           a.append(self.getQValue(state, action))
         return max(a)
+<<<<<<< HEAD
+=======
+    
+        
+
+>>>>>>> c4157bbd3a7c7991f17a07a4ecdedf52537677a3
 
     def computeActionFromQValues(self, state):
         """
@@ -87,18 +94,27 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        toAct = []
-        upper = -999
-        for action in self.getLegalActions(state):
-          if self.getQValue(state, action) > upper:
-            upper = self.getQValue(state, action)
-            toAct.append(action)
-          elif self.getQValue(state, action) == upper:
-            toAct.append(action)
-        if len(toAct) != 0:
-          return random.choice(toAct)
-        else:
-          return None
+        a = self.getLegalActions(state)
+        if len(a) == 0:
+          return 0
+        vals = util.Counter()
+        for action in a:
+          vals[action] = self.getQValue(state, action)
+        return vals.argMax()
+
+
+        # toAct = []
+        # upper = -999
+        # for action in self.getLegalActions(state):
+        #   if self.getQValue(state, action) > upper:
+        #     upper = self.getQValue(state, action)
+        #     toAct.append(action)
+        #   elif self.getQValue(state, action) == upper:
+        #     toAct.append(action)
+        # if len(toAct) != 0:
+        #   return random.choice(toAct)
+        # else:
+        #   return None
 
     def getAction(self, state):
         """
@@ -131,10 +147,12 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        self.freq[(state, action)] += 1
+        
+        
         self.values[(state, action)] = self.values[(state, action)] + self.alpha * (reward + self.discount * self.computeValueFromQValues(nextState) - self.values[(state, action)])
-        if action == 'exit' and self.values[(state, action)] == 0: # 
+        if action == 'exit' and self.freq[(state, action)] == 0: # 
           self.values[(state, action)] = reward * self.alpha
+        self.freq[(state, action)] += 1
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
