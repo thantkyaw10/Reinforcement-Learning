@@ -70,11 +70,13 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        a = [-9999999999999999]
+        if len(self.getLegalActions(state)) == 0:
+          return 0
+        a = []
         for action in self.getLegalActions(state):
           a.append(self.getQValue(state, action))
         return max(a)
-        
+    
         
 
 
@@ -85,18 +87,27 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        toAct = []
-        upper = -999
-        for action in self.getLegalActions(state):
-          if self.getQValue(state, action) > upper:
-            upper = self.getQValue(state, action)
-            toAct.append(action)
-          elif self.getQValue(state, action) == upper:
-            toAct.append(action)
-        if len(toAct) != 0:
-          return random.choice(toAct)
-        else:
-          return None
+        a = self.getLegalActions(state)
+        if len(a) == 0:
+          return 0
+        vals = util.Counter()
+        for action in a:
+          vals[action] = self.getQValue(state, action)
+        return vals.argMax()
+
+
+        # toAct = []
+        # upper = -999
+        # for action in self.getLegalActions(state):
+        #   if self.getQValue(state, action) > upper:
+        #     upper = self.getQValue(state, action)
+        #     toAct.append(action)
+        #   elif self.getQValue(state, action) == upper:
+        #     toAct.append(action)
+        # if len(toAct) != 0:
+        #   return random.choice(toAct)
+        # else:
+        #   return None
 
     def getAction(self, state):
         """
