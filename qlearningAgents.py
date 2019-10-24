@@ -212,7 +212,7 @@ class ApproximateQAgent(PacmanQAgent):
         featureVector = self.featExtractor.getFeatures(state, action) #featureVector is the features in featExtractor --> getFeatures function
         Q = 0 #will hold Q(state,action)
         #From directions: We provide feature functions for you in featureExtractors.py. Feature vectors are util.Counter(like a dictionary) objects containing the non-zero pairs of features and values; all omitted features have value zero.
-        for feature in featureVector: #dot product Q(s,a) = sum of component products
+        for feature in featureVector.keys(): #dot product Q(s,a) = sum of component products
           Q += w[feature] * featureVector[feature] #weight of each feature * f(s,a) 
         return Q
 
@@ -221,7 +221,10 @@ class ApproximateQAgent(PacmanQAgent):
            Should update your weights based on transition
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        featVector = self.featExtractor.getFeatures(state, action)
+        for feat in featVector.keys():
+          difference = (reward + self.discount * self.computeValueFromQValues(nextState)) - self.getQValue(state, action)
+          self.weights[feat] = self.weights[feat] + self.alpha * featVector[feat] * difference
 
     def final(self, state):
         "Called at the end of each game."
