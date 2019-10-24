@@ -48,9 +48,6 @@ class QLearningAgent(ReinforcementAgent):
         "*** YOUR CODE HERE ***"
         self.values = util.Counter()
         self.freq = util.Counter()
-        self.prevAction = None
-        self.prevState = None
-        self.prevReward = None
         # //TODO Set all state's Q-values to 0 with a Counter
         # Do we keep state, action pairs or just states?
         # //TODO Initialize transition probability Counter
@@ -73,7 +70,7 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        a = [0]
+        a = [-9999999999999999]
         for action in self.getLegalActions(state):
           a.append(self.getQValue(state, action))
         return max(a)
@@ -133,10 +130,11 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
         
-        self.freq[(state, action)] += 1
+        
         self.values[(state, action)] = self.values[(state, action)] + self.alpha * (reward + self.discount * self.computeValueFromQValues(nextState) - self.values[(state, action)])
-        if action == 'exit' and self.values[(state, action)] == 0: # 
+        if action == 'exit' and self.freq[(state, action)] == 0: # 
           self.values[(state, action)] = reward * self.alpha
+        self.freq[(state, action)] += 1
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
