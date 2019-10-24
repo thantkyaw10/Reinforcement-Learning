@@ -70,22 +70,15 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-<<<<<<< HEAD
-        if len(self.getLegalActions(state)) == 0: #terminal state
-=======
         if len(self.getLegalActions(state)) == 0:
->>>>>>> c4157bbd3a7c7991f17a07a4ecdedf52537677a3
           return 0
         a = []
         for action in self.getLegalActions(state):
           a.append(self.getQValue(state, action))
         return max(a)
-<<<<<<< HEAD
-=======
     
         
 
->>>>>>> c4157bbd3a7c7991f17a07a4ecdedf52537677a3
 
     def computeActionFromQValues(self, state):
         """
@@ -215,7 +208,13 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        w = self.weights #weights are just self.weights
+        featureVector = self.featExtractor.getFeatures(state, action) #featureVector is the features in featExtractor --> getFeatures function
+        Q = 0 #will hold Q(state,action)
+        #From directions: We provide feature functions for you in featureExtractors.py. Feature vectors are util.Counter(like a dictionary) objects containing the non-zero pairs of features and values; all omitted features have value zero.
+        for feature in featureVector: #dot product Q(s,a) = sum of component products
+          Q += w[feature] * featureVector[feature] #weight of each feature * f(s,a) 
+        return Q
 
     def update(self, state, action, nextState, reward):
         """
