@@ -95,20 +95,6 @@ class QLearningAgent(ReinforcementAgent):
           vals[action] = self.getQValue(state, action)
         return vals.argMax()
 
-
-        # toAct = []
-        # upper = -999
-        # for action in self.getLegalActions(state):
-        #   if self.getQValue(state, action) > upper:
-        #     upper = self.getQValue(state, action)
-        #     toAct.append(action)
-        #   elif self.getQValue(state, action) == upper:
-        #     toAct.append(action)
-        # if len(toAct) != 0:
-        #   return random.choice(toAct)
-        # else:
-        #   return None
-
     def getAction(self, state):
         """
           Compute the action to take in the current state.  With
@@ -221,11 +207,17 @@ class ApproximateQAgent(PacmanQAgent):
            Should update your weights based on transition
         """
         "*** YOUR CODE HERE ***"
+        difference = (reward + self.discount * self.computeValueFromQValues(nextState)) - self.getQValue(state, action)
+        
         featVector = self.featExtractor.getFeatures(state, action)
         for feat in featVector.keys():
-          difference = (reward + self.discount * self.computeValueFromQValues(nextState)) - self.getQValue(state, action)
-          self.weights[feat] = self.weights[feat] + self.alpha * featVector[feat] * difference
+          #if terminal, just:   difference = reward - self.getQValue(state,action)
+          #print "\n\nState: ", str(state), "\n AND action: ", str(action), "\ngetQValue(state,action) is: ", str(self.getQValue(state,action))
+          #difference = (reward + self.discount * self.computeValueFromQValues(nextState)) - self.getQValue(state, action)
+          #Difference does not go in loop
+          self.weights[feat] = self.getWeights()[feat] + self.alpha * difference * featVector[feat]
 
+        
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
